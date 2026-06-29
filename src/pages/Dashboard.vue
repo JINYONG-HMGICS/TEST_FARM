@@ -1,18 +1,21 @@
 <template>
   <div class="dashboard">
-    <Topbar />
+    <Topbar :farmStatus="farmStatus" />
 
-    <HeroStatus />
+    <HeroStatus :farmStatus="farmStatus" />
 
     <section class="metrics">
-      <MetricCard icon="🌡" title="Temperature" value="24.8°C" />
-      <MetricCard icon="💧" title="Humidity" value="61%" />
-      <MetricCard icon="☀️" title="Light" value="850 lux" />
-      <MetricCard icon="🌿" title="Growth" value="Excellent" />
+      <MetricCard
+        v-for="metric in metrics"
+        :key="metric.title"
+        :icon="metric.icon"
+        :title="metric.title"
+        :value="metric.value"
+      />
     </section>
 
     <section class="main-grid">
-      <ZoneOverview />
+      <ZoneOverview :zones="zones" />
 
       <section class="panel demo">
         <h2>Customer Demo</h2>
@@ -20,20 +23,39 @@
         <button class="primary" @click="runDemo">Start Visitor Demo</button>
       </section>
 
-      <AutomationPanel />
+      <AutomationPanel :tasks="automationTasks" />
 
-      <ActivityPanel />
+      <ActivityPanel :activities="activities" />
     </section>
   </div>
 </template>
 
 <script setup>
+import { ref, onMounted } from 'vue'
+import { getDashboardData } from '../services/api'
+
 import Topbar from '../components/Topbar.vue'
 import HeroStatus from '../components/HeroStatus.vue'
 import MetricCard from '../components/MetricCard.vue'
 import ZoneOverview from '../components/ZoneOverview.vue'
 import AutomationPanel from '../components/AutomationPanel.vue'
 import ActivityPanel from '../components/ActivityPanel.vue'
+
+const farmStatus = ref({})
+const metrics = ref([])
+const zones = ref([])
+const automationTasks = ref([])
+const activities = ref([])
+
+onMounted(async () => {
+  const data = await getDashboardData()
+
+  farmStatus.value = data.farmStatus
+  metrics.value = data.metrics
+  zones.value = data.zones
+  automationTasks.value = data.automationTasks
+  activities.value = data.activities
+})
 
 function runDemo() {
   alert('Visitor Demo scenario will be connected to backend API later.')
@@ -48,9 +70,9 @@ function runDemo() {
 
 .metrics {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, minmax(180px, 1fr));
   gap: 18px;
-  margin-bottom: 24px;
+  margin: 24px 0;
 }
 
 .main-grid {
@@ -68,6 +90,10 @@ function runDemo() {
 
 .panel h2 {
   margin-top: 0;
+}
+
+.demo {
+  min-height: 180px;
 }
 
 .primary {
