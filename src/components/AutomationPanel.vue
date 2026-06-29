@@ -7,20 +7,38 @@
         <strong>{{ task.icon }} {{ task.name }}</strong>
         <p>{{ task.description }}</p>
       </div>
+
       <button @click="runTask(task.name)">Run</button>
     </div>
   </section>
 </template>
 
 <script setup>
-const tasks = [
-  { icon: '💧', name: 'Irrigation', description: 'Run short watering cycle' },
-  { icon: '☀️', name: 'LED Lighting', description: 'Adjust light intensity for demo' },
-  { icon: '🌬', name: 'Ventilation', description: 'Refresh airflow in growing zones' }
-]
+import { runAutomation } from '../services/api'
 
-function runTask(taskName) {
-  alert(`${taskName} automation request created.`)
+defineProps({
+  tasks: {
+    type: Array,
+    default: () => []
+  }
+})
+
+const emit = defineEmits(['activity-added'])
+
+async function runTask(taskName) {
+  console.log('Clicked:', taskName)
+
+  try {
+    const result = await runAutomation(taskName)
+
+    console.log('Automation result:', result)
+
+    emit('activity-added', `✅ ${result.message}`)
+  } catch (error) {
+    console.error('Automation failed:', error)
+
+    emit('activity-added', `❌ ${taskName} automation failed.`)
+  }
 }
 </script>
 
@@ -57,5 +75,9 @@ button {
   border-radius: 999px;
   cursor: pointer;
   font-weight: 800;
+}
+
+button:hover {
+  background: #d6ecd8;
 }
 </style>

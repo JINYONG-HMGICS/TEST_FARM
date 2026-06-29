@@ -8,3 +8,11 @@ export async function getDashboardData() {
   const response = await api.get('/api/dashboard')
   return response.data
 }
+
+export async function runAutomation(taskName) {
+  const response = await api.post('/api/automation/run', {
+    taskName
+  })
+
+  return response.data
+}

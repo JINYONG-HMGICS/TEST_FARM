@@ -23,7 +23,10 @@
         <button class="primary" @click="runDemo">Start Visitor Demo</button>
       </section>
 
-      <AutomationPanel :tasks="automationTasks" />
+      <AutomationPanel
+        :tasks="automationTasks"
+        @activity-added="addActivity"
+      />
 
       <ActivityPanel :activities="activities" />
     </section>
@@ -41,24 +44,39 @@ import ZoneOverview from '../components/ZoneOverview.vue'
 import AutomationPanel from '../components/AutomationPanel.vue'
 import ActivityPanel from '../components/ActivityPanel.vue'
 
-const farmStatus = ref({})
+const farmStatus = ref({
+  greetingName: '',
+  summary: '',
+  healthTitle: '',
+  healthDescription: '',
+  healthScore: ''
+})
+
 const metrics = ref([])
 const zones = ref([])
 const automationTasks = ref([])
 const activities = ref([])
 
 onMounted(async () => {
-  const data = await getDashboardData()
+  try {
+    const data = await getDashboardData()
 
-  farmStatus.value = data.farmStatus
-  metrics.value = data.metrics
-  zones.value = data.zones
-  automationTasks.value = data.automationTasks
-  activities.value = data.activities
+    farmStatus.value = data.farmStatus
+    metrics.value = data.metrics
+    zones.value = data.zones
+    automationTasks.value = data.automationTasks
+    activities.value = data.activities
+  } catch (error) {
+    console.error('Failed to load dashboard data:', error)
+  }
 })
 
 function runDemo() {
-  alert('Visitor Demo scenario will be connected to backend API later.')
+  addActivity('✅ Visitor Demo scenario started.')
+}
+
+function addActivity(message) {
+  activities.value.unshift(message)
 }
 </script>
 
@@ -105,5 +123,9 @@ function runDemo() {
   cursor: pointer;
   font-weight: 800;
   margin-top: 18px;
+}
+
+.primary:hover {
+  background: #256b2a;
 }
 </style>
