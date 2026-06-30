@@ -37,6 +37,14 @@
 import { ref, onMounted } from 'vue'
 import { getDashboardData } from '../services/api'
 
+import {
+  farmStatus as mockFarmStatus,
+  metrics as mockMetrics,
+  zones as mockZones,
+  automationTasks as mockAutomationTasks,
+  activities as mockActivities
+} from '../data/farmMockData'
+
 import Topbar from '../components/Topbar.vue'
 import HeroStatus from '../components/HeroStatus.vue'
 import MetricCard from '../components/MetricCard.vue'
@@ -44,18 +52,11 @@ import ZoneOverview from '../components/ZoneOverview.vue'
 import AutomationPanel from '../components/AutomationPanel.vue'
 import ActivityPanel from '../components/ActivityPanel.vue'
 
-const farmStatus = ref({
-  greetingName: '',
-  summary: '',
-  healthTitle: '',
-  healthDescription: '',
-  healthScore: ''
-})
-
-const metrics = ref([])
-const zones = ref([])
-const automationTasks = ref([])
-const activities = ref([])
+const farmStatus = ref(mockFarmStatus)
+const metrics = ref(mockMetrics)
+const zones = ref(mockZones)
+const automationTasks = ref(mockAutomationTasks)
+const activities = ref([...mockActivities])
 
 onMounted(async () => {
   try {
@@ -67,7 +68,13 @@ onMounted(async () => {
     automationTasks.value = data.automationTasks
     activities.value = data.activities
   } catch (error) {
-    console.error('Failed to load dashboard data:', error)
+    console.warn('Backend API not available. Using mock dashboard data.', error)
+
+    farmStatus.value = mockFarmStatus
+    metrics.value = mockMetrics
+    zones.value = mockZones
+    automationTasks.value = mockAutomationTasks
+    activities.value = [...mockActivities]
   }
 })
 
