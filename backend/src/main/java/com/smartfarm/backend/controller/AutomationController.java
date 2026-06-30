@@ -1,24 +1,24 @@
 package com.smartfarm.backend.controller;
 
+import com.smartfarm.backend.dto.AutomationRunResponseDto;
+import com.smartfarm.backend.service.AutomationService;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.Map;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:5173")
 @RequestMapping("/api/automation")
 public class AutomationController {
 
-    @PostMapping("/run")
-    public Map<String, Object> runAutomation(@RequestBody Map<String, String> request) {
-        String taskName = request.get("taskName");
+    private final AutomationService automationService;
 
-        return Map.of(
-                "status", "SUCCESS",
-                "taskName", taskName,
-                "message", taskName + " automation request completed.",
-                "timestamp", LocalDateTime.now().toString()
-        );
+    public AutomationController(AutomationService automationService) {
+        this.automationService = automationService;
+    }
+
+    @PostMapping("/run")
+    public AutomationRunResponseDto runAutomation(@RequestBody Map<String, String> request) {
+        String taskName = request.get("taskName");
+        return automationService.runAutomation(taskName);
     }
 }

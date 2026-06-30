@@ -16,3 +16,8 @@ export async function runAutomation(taskName) {
 
   return response.data
 }
+
+export async function createSensorReading(sensorData) {
+  const response = await api.post('/api/sensors/readings', sensorData)
+  return response.data
+}

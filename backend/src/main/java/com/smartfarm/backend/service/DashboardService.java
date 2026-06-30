@@ -5,6 +5,7 @@ import com.smartfarm.backend.dto.DashboardResponseDto;
 import com.smartfarm.backend.dto.FarmStatusDto;
 import com.smartfarm.backend.dto.MetricDto;
 import com.smartfarm.backend.dto.ZoneDto;
+import com.smartfarm.backend.entity.SensorReading;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,7 +13,20 @@ import java.util.List;
 @Service
 public class DashboardService {
 
+    private final ActivityService activityService;
+    private final SensorService sensorService;
+
+    public DashboardService(
+            ActivityService activityService,
+            SensorService sensorService
+    ) {
+        this.activityService = activityService;
+        this.sensorService = sensorService;
+    }
+
     public DashboardResponseDto getDashboard() {
+        SensorReading latestSensor = sensorService.getLatestSensorReading();
+
         return new DashboardResponseDto(
                 new FarmStatusDto(
                         "Jinyong",
@@ -22,10 +36,10 @@ public class DashboardService {
                         "96%"
                 ),
                 List.of(
-                        new MetricDto("🌡", "Temperature", "24.8°C"),
-                        new MetricDto("💧", "Humidity", "61%"),
-                        new MetricDto("☀️", "Light", "850 lux"),
-                        new MetricDto("🌿", "Growth", "Excellent")
+                        new MetricDto("🌡", "Temperature", latestSensor.getTemperature() + "°C"),
+                        new MetricDto("💧", "Humidity", latestSensor.getHumidity().intValue() + "%"),
+                        new MetricDto("☀️", "Light", latestSensor.getLight() + " lux"),
+                        new MetricDto("🌿", "Growth", latestSensor.getGrowthStatus())
                 ),
                 List.of(
                         new ZoneDto("🌱", "Zone A", "Healthy", "Leafy greens / Stable"),
@@ -37,12 +51,10 @@ public class DashboardService {
                         new AutomationTaskDto("☀️", "LED Lighting", "Adjust light intensity for demo"),
                         new AutomationTaskDto("🌬", "Ventilation", "Refresh airflow in growing zones")
                 ),
-                List.of(
-                        "✅ Irrigation completed in Zone A",
-                        "✅ Customer demo mode started",
-                        "⚠️ Zone B humidity slightly low",
-                        "✅ LED intensity adjusted"
-                )
+                activityService.getRecentActivities()
+                        .stream()
+                        .map(activity -> activity.message())
+                        .toList()
         );
     }
 }

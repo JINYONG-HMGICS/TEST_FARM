@@ -29,6 +29,8 @@
       />
 
       <ActivityPanel :activities="activities" />
+
+      <SensorControlPanel @sensor-updated="handleSensorUpdated" />
     </section>
   </div>
 </template>
@@ -51,6 +53,7 @@ import MetricCard from '../components/MetricCard.vue'
 import ZoneOverview from '../components/ZoneOverview.vue'
 import AutomationPanel from '../components/AutomationPanel.vue'
 import ActivityPanel from '../components/ActivityPanel.vue'
+import SensorControlPanel from '../components/SensorControlPanel.vue'
 
 const farmStatus = ref(mockFarmStatus)
 const metrics = ref(mockMetrics)
@@ -59,6 +62,10 @@ const automationTasks = ref(mockAutomationTasks)
 const activities = ref([...mockActivities])
 
 onMounted(async () => {
+  await loadDashboard()
+})
+
+async function loadDashboard() {
   try {
     const data = await getDashboardData()
 
@@ -76,7 +83,7 @@ onMounted(async () => {
     automationTasks.value = mockAutomationTasks
     activities.value = [...mockActivities]
   }
-})
+}
 
 function runDemo() {
   addActivity('✅ Visitor Demo scenario started.')
@@ -84,6 +91,11 @@ function runDemo() {
 
 function addActivity(message) {
   activities.value.unshift(message)
+}
+
+async function handleSensorUpdated() {
+  await loadDashboard()
+  addActivity('✅ Sensor reading updated from control panel.')
 }
 </script>
 
