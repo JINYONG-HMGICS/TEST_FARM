@@ -23,6 +23,13 @@ public class ActivityService {
                 .toList();
     }
 
+    public ActivityLogDto createActivity(String message, String type) {
+        ActivityLog activityLog = new ActivityLog(message, type);
+        ActivityLog savedActivityLog = activityLogRepository.save(activityLog);
+
+        return toDto(savedActivityLog);
+    }
+
     private ActivityLogDto toDto(ActivityLog activityLog) {
         return new ActivityLogDto(
                 activityLog.getId(),

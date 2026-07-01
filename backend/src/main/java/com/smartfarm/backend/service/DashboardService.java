@@ -4,7 +4,6 @@ import com.smartfarm.backend.dto.AutomationTaskDto;
 import com.smartfarm.backend.dto.DashboardResponseDto;
 import com.smartfarm.backend.dto.FarmStatusDto;
 import com.smartfarm.backend.dto.MetricDto;
-import com.smartfarm.backend.dto.ZoneDto;
 import com.smartfarm.backend.entity.SensorReading;
 import org.springframework.stereotype.Service;
 
@@ -15,13 +14,16 @@ public class DashboardService {
 
     private final ActivityService activityService;
     private final SensorService sensorService;
+    private final ZoneService zoneService;
 
     public DashboardService(
             ActivityService activityService,
-            SensorService sensorService
+            SensorService sensorService,
+            ZoneService zoneService
     ) {
         this.activityService = activityService;
         this.sensorService = sensorService;
+        this.zoneService = zoneService;
     }
 
     public DashboardResponseDto getDashboard() {
@@ -41,11 +43,7 @@ public class DashboardService {
                         new MetricDto("☀️", "Light", latestSensor.getLight() + " lux"),
                         new MetricDto("🌿", "Growth", latestSensor.getGrowthStatus())
                 ),
-                List.of(
-                        new ZoneDto("🌱", "Zone A", "Healthy", "Leafy greens / Stable"),
-                        new ZoneDto("🌿", "Zone B", "Growing", "Herbs / Humidity low"),
-                        new ZoneDto("🌾", "Zone C", "Harvest Ready", "Premium showcase zone")
-                ),
+                zoneService.getZones(),
                 List.of(
                         new AutomationTaskDto("💧", "Irrigation", "Run short watering cycle"),
                         new AutomationTaskDto("☀️", "LED Lighting", "Adjust light intensity for demo"),

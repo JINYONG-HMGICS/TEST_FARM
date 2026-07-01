@@ -20,12 +20,14 @@
       <section class="panel demo">
         <h2>Customer Demo</h2>
         <p>Run guided scenarios for visitors and customer experience sessions.</p>
-        <button class="primary" @click="runDemo">Start Visitor Demo</button>
+        <button class="primary" @click="runDemo">
+          Start Visitor Demo
+        </button>
       </section>
 
       <AutomationPanel
         :tasks="automationTasks"
-        @activity-added="addActivity"
+        @activity-added="handleActivityUpdated"
       />
 
       <ActivityPanel :activities="activities" />
@@ -59,7 +61,7 @@ const farmStatus = ref(mockFarmStatus)
 const metrics = ref(mockMetrics)
 const zones = ref(mockZones)
 const automationTasks = ref(mockAutomationTasks)
-const activities = ref([...mockActivities])
+const activities = ref([])
 
 onMounted(async () => {
   await loadDashboard()
@@ -69,11 +71,17 @@ async function loadDashboard() {
   try {
     const data = await getDashboardData()
 
+    console.log('========== Dashboard Reload ==========')
+    console.log('activities from backend:', data.activities.length)
+    console.log(data.activities)
+
     farmStatus.value = data.farmStatus
     metrics.value = data.metrics
     zones.value = data.zones
     automationTasks.value = data.automationTasks
-    activities.value = data.activities
+    activities.value = data.activities.slice(0, 10)
+
+    console.log('activities in vue:', activities.value.length)
   } catch (error) {
     console.warn('Backend API not available. Using mock dashboard data.', error)
 
@@ -81,21 +89,23 @@ async function loadDashboard() {
     metrics.value = mockMetrics
     zones.value = mockZones
     automationTasks.value = mockAutomationTasks
-    activities.value = [...mockActivities]
+    activities.value = mockActivities.slice(0, 10)
   }
 }
 
-function runDemo() {
-  addActivity('✅ Visitor Demo scenario started.')
-}
-
-function addActivity(message) {
-  activities.value.unshift(message)
+async function handleActivityUpdated() {
+  console.log('Activity Event Received')
+  await loadDashboard()
 }
 
 async function handleSensorUpdated() {
+  console.log('Sensor Event Received')
   await loadDashboard()
-  addActivity('✅ Sensor reading updated from control panel.')
+}
+
+async function runDemo() {
+  console.log('Demo button clicked')
+  await loadDashboard()
 }
 </script>
 

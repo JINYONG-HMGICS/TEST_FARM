@@ -26,18 +26,17 @@ defineProps({
 const emit = defineEmits(['activity-added'])
 
 async function runTask(taskName) {
-  console.log('Clicked:', taskName)
-
   try {
-    const result = await runAutomation(taskName)
+    await runAutomation(taskName)
 
-    console.log('Automation result:', result)
-
-    emit('activity-added', `✅ ${result.message}`)
+    // Do not add activity locally.
+    // Parent Dashboard reloads latest 10 activities from DB.
+    emit('activity-added')
   } catch (error) {
     console.error('Automation failed:', error)
 
-    emit('activity-added', `❌ ${taskName} automation failed.`)
+    // Still reload dashboard to keep UI consistent.
+    emit('activity-added')
   }
 }
 </script>
